@@ -395,7 +395,8 @@ function initApp() {
             list.innerHTML = '<p class="placeholder-text">Sincronizando com GitHub...</p>';
             
             try {
-                const response = await fetch(`${API_URL}/projects`);
+                const currentApi = localStorage.getItem('tera_api_url') || API_URL;
+                const response = await fetch(`${currentApi}/projects`);
                 const projects = await response.ok ? await response.json() : [];
                 
                 if (projects.length > 0) {
@@ -403,15 +404,27 @@ function initApp() {
                         <div class="card" onclick="window.open('${p.url || '#'}', '_system')">
                             <h3>${p.title}</h3>
                             <p>${p.description}</p>
-                            ${p.language ? `<div class="github-badge"><i>💻</i> ${p.language}</div>` : ''}
-                            ${p.category === 'github' ? `<div class="github-badge"><i>🔗</i> GitHub Repo</div>` : ''}
+                            <div class="card-footer">
+                                ${p.language && p.language !== 'N/A' ? `<span class="github-badge"><i>💻</i> ${p.language}</span>` : ''}
+                                ${p.category === 'github' ? `<span class="github-badge"><i>🔗</i> GitHub</span>` : ''}
+                            </div>
                         </div>
                     `).join('');
                 } else {
-                    list.innerHTML = '<p class="placeholder-text">Nenhum projeto encontrado.</p>';
+                    list.innerHTML = `
+                        <div class="error-container">
+                            <p class="placeholder-text">Não foi possível carregar via API.</p>
+                            <button class="btn-tech" onclick="window.open('https://github.com/lzvsrx', '_system')">VER NO GITHUB WEB</button>
+                        </div>
+                    `;
                 }
             } catch (e) {
-                list.innerHTML = '<p class="placeholder-text">Erro ao carregar projetos do GitHub.</p>';
+                list.innerHTML = `
+                    <div class="error-container">
+                        <p class="placeholder-text">Erro de conexão com o servidor.</p>
+                        <button class="btn-tech" onclick="window.open('https://github.com/lzvsrx', '_system')">ACESSAR GITHUB MANUALMENTE</button>
+                    </div>
+                `;
             }
             return;
         }

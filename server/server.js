@@ -111,31 +111,35 @@ app.post('/api/login', (req, res) => {
 // Technical Data & Projects
 app.get('/api/projects', async (req, res) => {
     try {
-        // Fetch from GitHub API
-        const githubResponse = await axios.get(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=10`);
+        // Fetch from GitHub API - Adding User-Agent as required by GitHub
+        const githubResponse = await axios.get(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=15`, {
+            headers: { 'User-Agent': 'Tera-AI-Assistant' }
+        });
+        
         const githubProjects = githubResponse.data.map(repo => ({
             id: repo.id,
             title: repo.name,
             description: repo.description || 'Sem descrição no repositório.',
             category: 'github',
             url: repo.html_url,
-            language: repo.language
+            language: repo.language || 'N/A'
         }));
 
-        if (!dbConnected) return res.json(githubProjects);
+        if (!dbConnected) {
+            console.log(`✅ GitHub Projects loaded (${githubProjects.length}) in MOCK mode.`);
+            return res.json(githubProjects);
+        }
         
         db.query('SELECT * FROM projects', (err, dbResults) => {
-            if (err) return res.json(githubProjects); // Fallback to only GH if DB fails
+            if (err) return res.json(githubProjects); 
             const combined = [...githubProjects, ...dbResults];
             res.json(combined);
         });
     } catch (error) {
-        console.error("GitHub API Error:", error.message);
-        if (!dbConnected) return res.json(mockProjects);
-        db.query('SELECT * FROM projects', (err, results) => {
-            if (err) return res.status(500).json({ error: 'Erro ao buscar projetos' });
-            res.json(results);
-        });
+        console.error("❌ GitHub API Error:", error.response ? error.response.data : error.message);
+        // Fallback to local mock projects if GitHub fails
+        const fallback = [...mockProjects];
+        res.json(fallback);
     }
 });
 
