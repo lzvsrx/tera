@@ -389,7 +389,33 @@ function initApp() {
     }
 
     // Dynamic Module Data
-    function loadModuleData(moduleId) {
+    async function loadModuleData(moduleId) {
+        if (moduleId === 'projects-module') {
+            const list = document.getElementById('projects-list');
+            list.innerHTML = '<p class="placeholder-text">Sincronizando com GitHub...</p>';
+            
+            try {
+                const response = await fetch(`${API_URL}/projects`);
+                const projects = await response.ok ? await response.json() : [];
+                
+                if (projects.length > 0) {
+                    list.innerHTML = projects.map(p => `
+                        <div class="card" onclick="window.open('${p.url || '#'}', '_system')">
+                            <h3>${p.title}</h3>
+                            <p>${p.description}</p>
+                            ${p.language ? `<div class="github-badge"><i>💻</i> ${p.language}</div>` : ''}
+                            ${p.category === 'github' ? `<div class="github-badge"><i>🔗</i> GitHub Repo</div>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p class="placeholder-text">Nenhum projeto encontrado.</p>';
+                }
+            } catch (e) {
+                list.innerHTML = '<p class="placeholder-text">Erro ao carregar projetos do GitHub.</p>';
+            }
+            return;
+        }
+
         const contentMap = {
             'study-module': `
                 <div class="card"><h3>Cálculo III</h3><p>Derivadas Parciais e Integrais Múltiplas</p></div>
@@ -405,11 +431,6 @@ function initApp() {
                 <div class="card"><h3>Laudo_Seguranca_Web.pdf</h3><p>Vulnerabilidades corrigidas: 12</p></div>
                 <div class="card"><h3>Performance_App_Mobile.docx</h3><p>Otimização de 30% no carregamento</p></div>
                 <div class="card"><h3>Relatorio_Infraestrutura.pdf</h3><p>Data: 02/04/2026</p></div>
-            `,
-            'projects-module': `
-                <div class="card"><h3>Tera v2.0</h3><p>Implementação de Visão Computacional</p><div class="github-badge">github.com/tera/v2</div></div>
-                <div class="card"><h3>Home Automation Kit</h3><p>Integração com sensores IoT</p><div class="github-badge">github.com/tera/home-iot</div></div>
-                <div class="card"><h3>Study Hub Platform</h3><p>Portal acadêmico centralizado</p><div class="github-badge">github.com/tera/study-hub</div></div>
             `
         };
 

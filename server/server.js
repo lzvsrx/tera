@@ -3,11 +3,15 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// GitHub Config
+const GITHUB_USERNAME = 'lzvsrx';
 
 // MySQL Connection
 let dbConnected = false;
@@ -105,12 +109,34 @@ app.post('/api/login', (req, res) => {
 });
 
 // Technical Data & Projects
-app.get('/api/projects', (req, res) => {
-    if (!dbConnected) return res.json(mockProjects);
-    db.query('SELECT * FROM projects', (err, results) => {
-        if (err) return res.status(500).json({ error: 'Erro ao buscar projetos' });
-        res.json(results);
-    });
+app.get('/api/projects', async (req, res) => {
+    try {
+        // Fetch from GitHub API
+        const githubResponse = await axios.get(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=10`);
+        const githubProjects = githubResponse.data.map(repo => ({
+            id: repo.id,
+            title: repo.name,
+            description: repo.description || 'Sem descrição no repositório.',
+            category: 'github',
+            url: repo.html_url,
+            language: repo.language
+        }));
+
+        if (!dbConnected) return res.json(githubProjects);
+        
+        db.query('SELECT * FROM projects', (err, dbResults) => {
+            if (err) return res.json(githubProjects); // Fallback to only GH if DB fails
+            const combined = [...githubProjects, ...dbResults];
+            res.json(combined);
+        });
+    } catch (error) {
+        console.error("GitHub API Error:", error.message);
+        if (!dbConnected) return res.json(mockProjects);
+        db.query('SELECT * FROM projects', (err, results) => {
+            if (err) return res.status(500).json({ error: 'Erro ao buscar projetos' });
+            res.json(results);
+        });
+    }
 });
 
 app.post('/api/projects', (req, res) => {
