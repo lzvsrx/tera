@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline' *; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content: *; connect-src 'self' http://192.168.0.4:3000 *;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <link rel="stylesheet" href="css/index.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <title>Tera - Jarvis AI</title>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="auth-screen" class="screen active">
+            <div class="auth-container">
+                <div class="tera-logo-container">
+                    <div class="tera-core"></div>
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="ring ring-3"></div>
+                </div>
+                <h1 class="glitch" data-text="TERA">TERA</h1>
+
+                <div id="login-form" class="form-container">
+                    <h2>ACESSO AO SISTEMA</h2>
+                    <div class="input-group">
+                        <input type="text" id="login-name" placeholder="Nome de Usuário" value="Admin" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="login-password" placeholder="Chave de Segurança" value="123456"
+                            required>
+                    </div>
+                    <button id="btn-login" class="btn-tech">INICIAR SESSÃO</button>
+                    <div class="quick-access">
+                        <button id="btn-quick-login" class="btn-link">Acesso Rápido (Admin)</button>
+                    </div>
+                    <p class="auth-switch">Novo por aqui? <span id="switch-to-signup">Solicitar Acesso</span></p>
+                </div>
+
+                <div id="signup-form" class="form-container" style="display: none;">
+                    <h2>SOLICITAR ACESSO</h2>
+                    <div class="input-group">
+                        <input type="text" id="signup-name" placeholder="Nome de Usuário" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signup-password" placeholder="Definir Chave" required>
+                    </div>
+                    <button id="btn-signup" class="btn-tech">CADASTRAR</button>
+                    <p class="auth-switch">Já possui acesso? <span id="switch-to-login">Identificar-se</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="main-screen" class="screen">
+            <header>
+                <div class="status-bar">
+                    <div class="left-status">
+                        <span id="system-status">SISTEMA ONLINE</span>
+                        <span class="git-status">GITHUB SYNC [LIVE]</span>
+                    </div>
+                    <span id="user-display">BEM-VINDO, SENHOR</span>
+                    <span id="current-time">00:00:00</span>
+                </div>
+            </header>
+
+            <main>
+                <aside class="sidebar left">
+                    <div class="nav-item active" data-target="chat-module">
+                        <i class="icon">💬</i>
+                        <span>ASSISTENTE</span>
+                    </div>
+                    <div class="nav-item" data-target="study-module">
+                        <i class="icon">📚</i>
+                        <span>ESTUDOS</span>
+                    </div>
+                    <div class="nav-item" data-target="tech-module">
+                        <i class="icon">⚙️</i>
+                        <span>TÉCNICO</span>
+                    </div>
+                    <div class="nav-item" data-target="reports-module">
+                        <i class="icon">📄</i>
+                        <span>LAUDOS</span>
+                    </div>
+                    <div class="nav-item" data-target="projects-module">
+                        <i class="icon">🚀</i>
+                        <span>PROJETOS</span>
+                    </div>
+                </aside>
+
+                <section class="content-area">
+                    <!-- Tera Visualizer -->
+                    <div id="tera-visualizer">
+                        <div class="tera-avatar">
+                            <div class="core"></div>
+                            <div class="wave wave-1"></div>
+                            <div class="wave wave-2"></div>
+                            <div class="wave wave-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Module -->
+                    <div id="chat-module" class="module active">
+                        <div id="chat-messages">
+                            <div class="message system">Tera: Sistema carregado. Como posso ajudar hoje?</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="user-input" placeholder="Digite seu comando ou fale..."
+                                autocomplete="off">
+                            <button id="btn-mic" class="btn-icon">🎤</button>
+                            <button id="btn-send" class="btn-icon">▶</button>
+                        </div>
+                    </div>
+
+                    <!-- Other modules will be populated dynamically -->
+                    <div id="study-module" class="module">
+                        <h2>MÓDULO DE ESTUDOS</h2>
+                        <div class="grid-container" id="study-grid"></div>
+                    </div>
+
+                    <div id="tech-module" class="module">
+                        <h2>SERVIÇOS TÉCNICOS</h2>
+                        <div class="grid-container" id="tech-grid"></div>
+                    </div>
+
+                    <div id="reports-module" class="module">
+                        <h2>LAUDOS E ARQUIVOS</h2>
+                        <div class="file-list" id="reports-list"></div>
+                    </div>
+
+                    <div id="projects-module" class="module">
+                        <h2>PROJETOS FUTUROS</h2>
+                        <div class="project-list" id="projects-list"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+</body>
+
+</html>
