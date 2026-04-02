@@ -8,7 +8,19 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Robust CORS for Mobile Devices
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Request Logger Middleware (To see Android hits)
+app.use((req, res, next) => {
+    console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url} from ${req.ip}`);
+    next();
+});
 
 // GitHub Config
 const GITHUB_USERNAME = 'lzvsrx';
