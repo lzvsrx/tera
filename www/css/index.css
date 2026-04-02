@@ -403,7 +403,24 @@ main {
     cursor: pointer;
 }
 
-.card:hover {
-    background: rgba(0, 212, 255, 0.15);
-    transform: translateY(-5px);
+.quick-access {
+    margin-top: 15px;
+}
+
+.btn-link {
+    background: transparent;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    color: rgba(0, 212, 255, 0.7);
+    padding: 8px 15px;
+    cursor: pointer;
+    font-family: var(--font-tech);
+    font-size: 0.7rem;
+    transition: 0.3s;
+    border-radius: 3px;
+}
+
+.btn-link:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(0, 212, 255, 0.1);
 }

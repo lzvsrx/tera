@@ -1,7 +1,7 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
 // Global State
-const API_URL = 'http://192.168.0.4:3000/api';
+const API_URL = 'http://192.168.0.2:41289/api';
 let currentUser = null;
 let isListening = false;
 let token = null;
@@ -92,7 +92,7 @@ function initApp() {
         }
 
         try {
-            addMessage("Autenticando...", 'system');
+            addMessage("Conectando ao servidor...", 'system');
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -106,13 +106,17 @@ function initApp() {
                 localStorage.setItem('tera_user', data.user.name);
                 login(data.user.name);
             } else {
-                teraSpeak(data.error || "Falha na autenticação.");
-                addMessage(data.error || "Erro de login.", 'system');
+                const errorMsg = data.error || "Falha na autenticação.";
+                teraSpeak(errorMsg);
+                alert("Tera: " + errorMsg);
+                addMessage(errorMsg, 'system');
             }
         } catch (error) {
-            console.error("Login error:", error);
-            teraSpeak("Erro de conexão. Iniciando modo offline local.");
-            login(name || "Usuário Local"); // Fallback for testing
+            console.error("Login connection error:", error);
+            const offlineConfirm = confirm("Não consegui conectar ao servidor em " + API_URL + ". Deseja entrar em MODO OFFLINE local?");
+            if (offlineConfirm) {
+                login(name || "Usuário Local", false);
+            }
         }
     });
 
