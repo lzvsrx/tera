@@ -207,6 +207,19 @@ function initApp() {
         if (input.includes("estudo") || input.includes("matéria")) {
             response = "Estou acessando seu cronograma de estudos. Você tem revisões pendentes em Cálculo e Física Quântica. Deseja que eu prepare um resumo?";
             showModule('study-module');
+        } else if (input.includes("pesquisa") || input.includes("o que é") || input.includes("quem foi") || input.includes("buscar")) {
+            const query = text.replace(/pesquisa|o que é|quem foi|buscar/gi, "").trim();
+            response = query ? `Iniciando pesquisa profunda sobre ${query}. Analisando fontes...` : "Módulo de pesquisa ativado. O que o senhor deseja que eu investigue?";
+            showModule('research-module');
+            if (query) performResearch(query);
+        } else if (input.includes("lembrete") || input.includes("agendar") || input.includes("tarefa") || input.includes("diário")) {
+            response = "Módulo de atividades diárias online. Listando seus compromissos e lembretes.";
+            showModule('daily-module');
+        } else if (input.includes("clima") || input.includes("tempo")) {
+            response = "Sensores indicam 24 graus com céu limpo. Uma ótima tarde para produtividade.";
+        } else if (input.includes("hora") || input.includes("dia")) {
+            const now = new Date();
+            response = `Agora são ${now.getHours()} horas e ${now.getMinutes()} minutos do dia ${now.toLocaleDateString()}.`;
         } else if (input.includes("laudo") || input.includes("relatório")) {
             response = "Módulo de engenharia ativado. Estou recuperando os laudos técnicos dos aplicativos em desenvolvimento. Um momento.";
             showModule('reports-module');
@@ -228,6 +241,59 @@ function initApp() {
             addMessage(response, 'system');
             teraSpeak(response);
         }, 500);
+    }
+
+    // Daily Tasks Logic
+    const btnAddTask = document.getElementById('btn-add-task');
+    const newTaskInput = document.getElementById('new-task');
+    const dailyList = document.getElementById('daily-list');
+
+    btnAddTask.addEventListener('click', () => {
+        const task = newTaskInput.value.trim();
+        if (task) {
+            addTask(task);
+            newTaskInput.value = '';
+        }
+    });
+
+    function addTask(text) {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.innerHTML = `
+            <span>${text}</span>
+            <span class="remove-btn">×</span>
+        `;
+        div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
+        dailyList.appendChild(div);
+    }
+
+    // Research Logic
+    const btnDoSearch = document.getElementById('btn-do-search');
+    const searchQueryInput = document.getElementById('search-query');
+    const searchResults = document.getElementById('search-results');
+
+    btnDoSearch.addEventListener('click', () => {
+        const query = searchQueryInput.value.trim();
+        if (query) performResearch(query);
+    });
+
+    function performResearch(query) {
+        searchResults.innerHTML = `<p class="placeholder-text">Pesquisando por: ${query}...</p>`;
+        
+        // Mocking research results
+        setTimeout(() => {
+            searchResults.innerHTML = `
+                <div class="search-result-card">
+                    <h3>Resultado da Web para "${query}"</h3>
+                    <p>Encontrei informações relevantes nos meus bancos de dados. Segundo as fontes técnicas, ${query} refere-se a um conceito fundamental no seu campo de atuação.</p>
+                </div>
+                <div class="search-result-card">
+                    <h3>Documentação Relacionada</h3>
+                    <p>Existem 12 artigos técnicos e 3 laudos que mencionam ${query}. Deseja que eu resuma o mais recente?</p>
+                </div>
+            `;
+            teraSpeak(`Pesquisa concluída para ${query}. Os resultados principais estão na tela.`);
+        }, 1500);
     }
 
     function showModule(moduleId) {

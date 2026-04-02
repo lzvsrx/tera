@@ -77,6 +77,14 @@
                         <i class="icon">💬</i>
                         <span>ASSISTENTE</span>
                     </div>
+                    <div class="nav-item" data-target="daily-module">
+                        <i class="icon">📅</i>
+                        <span>DIÁRIO</span>
+                    </div>
+                    <div class="nav-item" data-target="research-module">
+                        <i class="icon">🔍</i>
+                        <span>PESQUISA</span>
+                    </div>
                     <div class="nav-item" data-target="study-module">
                         <i class="icon">📚</i>
                         <span>ESTUDOS</span>
@@ -116,6 +124,28 @@
                                 autocomplete="off">
                             <button id="btn-mic" class="btn-icon">🎤</button>
                             <button id="btn-send" class="btn-icon">▶</button>
+                        </div>
+                    </div>
+
+                    <!-- Daily Activities Module -->
+                    <div id="daily-module" class="module">
+                        <h2>ATIVIDADES DIÁRIAS</h2>
+                        <div class="task-input-group">
+                            <input type="text" id="new-task" placeholder="Nova tarefa ou lembrete...">
+                            <button id="btn-add-task" class="btn-tech">ADICIONAR</button>
+                        </div>
+                        <div class="list-container" id="daily-list"></div>
+                    </div>
+
+                    <!-- Research Module -->
+                    <div id="research-module" class="module">
+                        <h2>CENTRAL DE PESQUISA</h2>
+                        <div class="search-input-group">
+                            <input type="text" id="search-query" placeholder="O que deseja pesquisar?">
+                            <button id="btn-do-search" class="btn-tech">BUSCAR</button>
+                        </div>
+                        <div id="search-results" class="results-area">
+                            <p class="placeholder-text">Aguardando comando de pesquisa...</p>
                         </div>
                     </div>
 

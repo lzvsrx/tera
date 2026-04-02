@@ -403,6 +403,86 @@ main {
     cursor: pointer;
 }
 
+/* Module Lists & Inputs */
+.list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-item {
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-item .remove-btn {
+    color: #ff4d4d;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.task-input-group, .search-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.task-input-group input, .search-input-group input {
+    flex: 1;
+}
+
+.task-input-group button, .search-input-group button {
+    width: auto;
+    padding: 0 20px;
+}
+
+.results-area {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    border: var(--border-tech);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.placeholder-text {
+    color: rgba(0, 212, 255, 0.4);
+    text-align: center;
+    margin-top: 50px;
+    font-style: italic;
+}
+
+.search-result-card {
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.search-result-card h3 {
+    font-family: var(--font-tech);
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.search-result-card p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.card:hover {
+    background: rgba(0, 212, 255, 0.15);
+    transform: translateY(-5px);
+}
+
 .quick-access {
     margin-top: 15px;
 }
