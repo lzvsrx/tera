@@ -392,11 +392,31 @@ function initApp() {
     async function loadModuleData(moduleId) {
         if (moduleId === 'projects-module') {
             const list = document.getElementById('projects-list');
-            list.innerHTML = '<p class="placeholder-text">Sincronizando com GitHub...</p>';
+            const githubUser = localStorage.getItem('tera_github_user');
+            
+            if (!githubUser) {
+                list.innerHTML = `
+                    <div class="error-container">
+                        <p class="placeholder-text">GitHub não configurado.</p>
+                        <input type="text" id="input-setup-github" placeholder="Seu usuário GitHub" class="input-tech">
+                        <button class="btn-tech" id="btn-save-github">CONECTAR GITHUB</button>
+                    </div>
+                `;
+                document.getElementById('btn-save-github').addEventListener('click', () => {
+                    const user = document.getElementById('input-setup-github').value.trim();
+                    if (user) {
+                        localStorage.setItem('tera_github_user', user);
+                        loadModuleData('projects-module');
+                    }
+                });
+                return;
+            }
+
+            list.innerHTML = `<p class="placeholder-text">Sincronizando repositórios de ${githubUser}...</p>`;
             
             try {
                 const currentApi = localStorage.getItem('tera_api_url') || API_URL;
-                const response = await fetch(`${currentApi}/projects`);
+                const response = await fetch(`${currentApi}/projects?github_user=${githubUser}`);
                 const projects = await response.ok ? await response.json() : [];
                 
                 if (projects.length > 0) {
@@ -413,8 +433,8 @@ function initApp() {
                 } else {
                     list.innerHTML = `
                         <div class="error-container">
-                            <p class="placeholder-text">Não foi possível carregar via API.</p>
-                            <button class="btn-tech" onclick="window.open('https://github.com/lzvsrx', '_system')">VER NO GITHUB WEB</button>
+                            <p class="placeholder-text">Nenhum repositório público encontrado para "${githubUser}".</p>
+                            <button class="btn-tech" onclick="localStorage.removeItem('tera_github_user'); loadModuleData('projects-module');">TROCAR USUÁRIO</button>
                         </div>
                     `;
                 }
@@ -422,7 +442,7 @@ function initApp() {
                 list.innerHTML = `
                     <div class="error-container">
                         <p class="placeholder-text">Erro de conexão com o servidor.</p>
-                        <button class="btn-tech" onclick="window.open('https://github.com/lzvsrx', '_system')">ACESSAR GITHUB MANUALMENTE</button>
+                        <button class="btn-tech" onclick="window.open('https://github.com/${githubUser}', '_system')">ACESSAR WEB</button>
                     </div>
                 `;
             }
@@ -431,19 +451,22 @@ function initApp() {
 
         const contentMap = {
             'study-module': `
-                <div class="card"><h3>Cálculo III</h3><p>Derivadas Parciais e Integrais Múltiplas</p></div>
-                <div class="card"><h3>Sistemas Operacionais</h3><p>Gerenciamento de Memória e Processos</p></div>
-                <div class="card"><h3>Inteligência Artificial</h3><p>Redes Neurais e Machine Learning</p></div>
+                <div class="empty-state">
+                    <p class="placeholder-text">Nenhuma matéria cadastrada.</p>
+                    <button class="btn-tech" onclick="teraSpeak('Módulo de estudos pronto para novos dados, senhor.')">ADICIONAR MATÉRIA</button>
+                </div>
             `,
             'tech-module': `
-                <div class="card"><h3>Servidor AWS</h3><p>Status: Operacional (99.9% Uptime)</p></div>
-                <div class="card"><h3>Banco de Dados MySQL</h3><p>Sincronizado com GitHub Actions</p></div>
-                <div class="card"><h3>API Gateway</h3><p>Latência: 45ms</p></div>
+                <div class="empty-state">
+                    <p class="placeholder-text">Nenhum serviço técnico em execução.</p>
+                    <button class="btn-tech">INICIAR DIAGNÓSTICO</button>
+                </div>
             `,
             'reports-module': `
-                <div class="card"><h3>Laudo_Seguranca_Web.pdf</h3><p>Vulnerabilidades corrigidas: 12</p></div>
-                <div class="card"><h3>Performance_App_Mobile.docx</h3><p>Otimização de 30% no carregamento</p></div>
-                <div class="card"><h3>Relatorio_Infraestrutura.pdf</h3><p>Data: 02/04/2026</p></div>
+                <div class="empty-state">
+                    <p class="placeholder-text">Nenhum laudo ou arquivo disponível.</p>
+                    <button class="btn-tech">NOVO LAUDO</button>
+                </div>
             `
         };
 

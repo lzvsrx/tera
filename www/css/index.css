@@ -494,6 +494,31 @@ main {
     max-width: 250px;
 }
 
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.empty-state .placeholder-text {
+    margin-bottom: 20px;
+}
+
+.input-tech {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    color: var(--primary-color);
+    font-family: var(--font-main);
+    outline: none;
+    margin-bottom: 15px;
+}
+
 .card:hover {
     background: rgba(0, 212, 255, 0.15);
     transform: translateY(-5px);

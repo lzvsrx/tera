@@ -22,9 +22,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// GitHub Config
-const GITHUB_USERNAME = 'lzvsrx';
-
 // MySQL Connection
 let dbConnected = false;
 const db = mysql.createConnection({
@@ -122,23 +119,28 @@ app.post('/api/login', (req, res) => {
 
 // Technical Data & Projects
 app.get('/api/projects', async (req, res) => {
+    const { github_user } = req.query;
+    
     try {
-        // Fetch from GitHub API - Adding User-Agent as required by GitHub
-        const githubResponse = await axios.get(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=15`, {
-            headers: { 'User-Agent': 'Tera-AI-Assistant' }
-        });
-        
-        const githubProjects = githubResponse.data.map(repo => ({
-            id: repo.id,
-            title: repo.name,
-            description: repo.description || 'Sem descrição no repositório.',
-            category: 'github',
-            url: repo.html_url,
-            language: repo.language || 'N/A'
-        }));
+        let githubProjects = [];
+        if (github_user) {
+            // Fetch from GitHub API - Adding User-Agent as required by GitHub
+            const githubResponse = await axios.get(`https://api.github.com/users/${github_user}/repos?sort=updated&per_page=15`, {
+                headers: { 'User-Agent': 'Tera-AI-Assistant' }
+            });
+            
+            githubProjects = githubResponse.data.map(repo => ({
+                id: repo.id,
+                title: repo.name,
+                description: repo.description || 'Sem descrição no repositório.',
+                category: 'github',
+                url: repo.html_url,
+                language: repo.language || 'N/A'
+            }));
+        }
 
         if (!dbConnected) {
-            console.log(`✅ GitHub Projects loaded (${githubProjects.length}) in MOCK mode.`);
+            if (github_user) console.log(`✅ GitHub Projects loaded (${githubProjects.length}) for user ${github_user}`);
             return res.json(githubProjects);
         }
         
@@ -149,9 +151,7 @@ app.get('/api/projects', async (req, res) => {
         });
     } catch (error) {
         console.error("❌ GitHub API Error:", error.response ? error.response.data : error.message);
-        // Fallback to local mock projects if GitHub fails
-        const fallback = [...mockProjects];
-        res.json(fallback);
+        res.json([]);
     }
 });
 
