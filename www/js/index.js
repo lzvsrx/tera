@@ -1,13 +1,13 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
 // Global State
-const API_URL = 'http://192.168.0.2:41289/api';
+let API_URL = localStorage.getItem('tera_api_url') || 'http://192.168.0.4:41289/api';
 let currentUser = null;
 let isListening = false;
-let token = null;
+let token = localStorage.getItem('tera_token') || null;
 
 function onDeviceReady() {
-    console.log('Tera System Initialized');
+    console.log('Tera System Initialized on API:', API_URL);
     initApp();
 }
 
@@ -35,6 +35,37 @@ function initApp() {
     const mainScreen = document.getElementById('main-screen');
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
+    const ipConfigPanel = document.getElementById('ip-config-panel');
+    const btnConfigIp = document.getElementById('btn-config-ip');
+    const btnSaveIp = document.getElementById('btn-save-ip');
+    const btnCancelIp = document.getElementById('btn-cancel-ip');
+    const inputServerIp = document.getElementById('input-server-ip');
+
+    // Set initial input value
+    inputServerIp.value = API_URL.replace('http://', '').replace('/api', '');
+
+    // IP Config Logic
+    btnConfigIp.addEventListener('click', () => {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'none';
+        ipConfigPanel.style.display = 'block';
+    });
+
+    btnCancelIp.addEventListener('click', () => {
+        ipConfigPanel.style.display = 'none';
+        loginForm.style.display = 'block';
+    });
+
+    btnSaveIp.addEventListener('click', () => {
+        const newIp = inputServerIp.value.trim();
+        if (newIp) {
+            API_URL = `http://${newIp}/api`;
+            localStorage.setItem('tera_api_url', API_URL);
+            alert("Endereço atualizado: " + API_URL + ". Reiniciando protocolos...");
+            location.reload();
+        }
+    });
+
     const switchToSignup = document.getElementById('switch-to-signup');
     const switchToLogin = document.getElementById('switch-to-login');
     const btnLogin = document.getElementById('btn-login');
@@ -49,11 +80,9 @@ function initApp() {
     const chatMessages = document.getElementById('chat-messages');
 
     // Check for saved session
-    const savedToken = localStorage.getItem('tera_token');
     const savedName = localStorage.getItem('tera_user');
-    if (savedToken && savedName) {
-        token = savedToken;
-        login(savedName, true); // True means auto-login, less talking
+    if (token && savedName) {
+        login(savedName, true);
     }
 
     // Time Update
@@ -92,8 +121,10 @@ function initApp() {
         }
 
         try {
-            addMessage("Conectando ao servidor...", 'system');
-            const response = await fetch(`${API_URL}/login`, {
+            const currentApi = localStorage.getItem('tera_api_url') || API_URL;
+            addMessage(`Tentando conexão em: ${currentApi}`, 'system');
+            
+            const response = await fetch(`${currentApi}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, password })
@@ -113,7 +144,10 @@ function initApp() {
             }
         } catch (error) {
             console.error("Login connection error:", error);
-            const offlineConfirm = confirm("Não consegui conectar ao servidor em " + API_URL + ". Deseja entrar em MODO OFFLINE local?");
+            const currentApi = localStorage.getItem('tera_api_url') || API_URL;
+            alert(`ERRO DE CONEXÃO!\nServidor: ${currentApi}\n\n1. Verifique se o servidor está rodando no PC.\n2. Verifique se o celular está no mesmo Wi-Fi.\n3. O IP do seu PC pode ter mudado.`);
+            
+            const offlineConfirm = confirm("Deseja entrar em MODO OFFLINE local para testar a interface?");
             if (offlineConfirm) {
                 login(name || "Usuário Local", false);
             }

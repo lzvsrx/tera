@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline' *; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content: *; connect-src 'self' http://192.168.0.2:41289 *;">
+        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline' *; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; media-src *; img-src 'self' data: content: *; connect-src *;">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
@@ -42,6 +42,19 @@
                         <button id="btn-quick-login" class="btn-link">Acesso Rápido (Admin)</button>
                     </div>
                     <p class="auth-switch">Novo por aqui? <span id="switch-to-signup">Solicitar Acesso</span></p>
+                    <div class="config-area">
+                        <button id="btn-config-ip" class="btn-link">⚙️ Configurar IP</button>
+                    </div>
+                </div>
+
+                <!-- IP Config Modal (Simple) -->
+                <div id="ip-config-panel" class="form-container" style="display: none;">
+                    <h2>CONFIGURAR SERVIDOR</h2>
+                    <div class="input-group">
+                        <input type="text" id="input-server-ip" placeholder="Ex: 192.168.0.4:41289">
+                    </div>
+                    <button id="btn-save-ip" class="btn-tech">SALVAR E REINICIAR</button>
+                    <button id="btn-cancel-ip" class="btn-link">CANCELAR</button>
                 </div>
 
                 <div id="signup-form" class="form-container" style="display: none;">
