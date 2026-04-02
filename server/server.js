@@ -38,6 +38,28 @@ db.connect(err => {
     } else {
         console.log('✅ Connected to MySQL database.');
         dbConnected = true;
+        
+        // Ensure tables exist
+        const initQueries = [
+            `CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`,
+            `CREATE TABLE IF NOT EXISTS projects (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                category ENUM('study', 'tech', 'personal', 'github') DEFAULT 'personal',
+                status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`
+        ];
+        
+        initQueries.forEach(q => db.query(q, (err) => {
+            if (err) console.error("❌ Error initializing table:", err.message);
+        }));
     }
 });
 
@@ -65,13 +87,27 @@ let mockErrors = [];
 // Auth Routes
 app.post('/api/register', async (req, res) => {
     const { name, password } = req.body;
-    if (!name || !password) return res.status(400).json({ error: 'Nome e senha são obrigatórios' });
+    console.log(`[AUTH] Tentativa de cadastro: ${name}`);
+
+    if (!name || !password) {
+        console.warn("[AUTH] Falha: Nome ou senha ausentes.");
+        return res.status(400).json({ error: 'Nome e senha são obrigatórios' });
+    }
     
     if (!dbConnected) {
-        if (mockUsers.find(u => u.name === name)) return res.status(400).json({ error: 'Nome já em uso (MOCK)' });
-        const hashedPassword = await bcrypt.hash(password, 10);
-        mockUsers.push({ id: Date.now(), name, password: hashedPassword });
-        return res.status(201).json({ message: 'Usuário registrado (MOCK)' });
+        console.log("[AUTH] Operando em modo MOCK.");
+        const existing = mockUsers.find(u => u.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+            return res.status(400).json({ error: 'Este nome já está em uso (MOCK)' });
+        }
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            mockUsers.push({ id: Date.now(), name, password: hashedPassword });
+            console.log(`[AUTH] Usuário ${name} cadastrado com sucesso (MOCK).`);
+            return res.status(201).json({ message: 'Usuário registrado com sucesso (MOCK)' });
+        } catch (err) {
+            return res.status(500).json({ error: 'Erro ao processar senha' });
+        }
     }
 
     try {
@@ -79,13 +115,21 @@ app.post('/api/register', async (req, res) => {
         const query = 'INSERT INTO users (name, password) VALUES (?, ?)';
         db.query(query, [name, hashedPassword], (err, result) => {
             if (err) {
-                if (err.code === 'ER_DUP_ENTRY') return res.status(400).json({ error: 'Este nome já está em uso' });
-                return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+                console.error("[AUTH] Erro no banco de dados:", err.message);
+                if (err.code === 'ER_DUP_ENTRY' || err.errno === 1062) {
+                    return res.status(400).json({ error: 'Este nome de usuário já existe.' });
+                }
+                if (err.code === 'ER_NO_SUCH_TABLE') {
+                    return res.status(500).json({ error: 'Erro crítico: Tabela de usuários não encontrada no banco.' });
+                }
+                return res.status(500).json({ error: 'Erro interno ao salvar no banco de dados.' });
             }
+            console.log(`[AUTH] Usuário ${name} cadastrado com sucesso no MySQL.`);
             res.status(201).json({ message: 'Usuário registrado com sucesso' });
         });
     } catch (e) {
-        res.status(500).json({ error: 'Erro interno no servidor' });
+        console.error("[AUTH] Erro inesperado:", e.message);
+        res.status(500).json({ error: 'Erro interno no servidor central.' });
     }
 });
 

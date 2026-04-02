@@ -156,30 +156,47 @@ function initApp() {
 
     btnSignup.addEventListener('click', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('signup-name').value;
-        const password = document.getElementById('signup-password').value;
+        const name = document.getElementById('signup-name').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
 
         if (!name || !password) {
             teraSpeak("Nome e senha são obrigatórios para o cadastro.");
             return;
         }
 
+        if (password.length < 4) {
+            teraSpeak("A senha deve ter pelo menos 4 caracteres para sua segurança.");
+            return;
+        }
+
         try {
-            const response = await fetch(`${API_URL}/register`, {
+            addMessage(`Solicitando acesso para ${name}...`, 'system');
+            const currentApi = localStorage.getItem('tera_api_url') || API_URL;
+            
+            const response = await fetch(`${currentApi}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, password })
             });
 
             const data = await response.json();
+            
             if (response.ok) {
-                teraSpeak(`Acesso concedido, ${name}. Por favor, identifique-se.`);
+                teraSpeak(`Acesso concedido, ${name}. Agora você pode realizar o login.`);
+                alert("Sucesso! Usuário cadastrado. Por favor, identifique-se na tela anterior.");
                 switchToLogin.click();
+                document.getElementById('login-name').value = name;
+                document.getElementById('login-password').value = password;
             } else {
-                teraSpeak(data.error || "Erro no cadastro.");
+                const errorMsg = data.error || "Não foi possível completar o cadastro.";
+                teraSpeak(errorMsg);
+                alert("Erro no Cadastro: " + errorMsg);
+                addMessage(errorMsg, 'system');
             }
         } catch (error) {
-            teraSpeak("Não foi possível conectar ao servidor central.");
+            console.error("Signup connection error:", error);
+            alert(`FALHA DE CONEXÃO!\n\nNão consegui enviar seu cadastro para o servidor.\nVerifique se o seu PC está ligado e na mesma rede.`);
+            teraSpeak("Erro de rede. Verifique a conexão com o servidor central.");
         }
     });
 
